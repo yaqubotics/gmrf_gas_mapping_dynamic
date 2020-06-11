@@ -1,0 +1,28 @@
+<!-- GAS DISTRIBUTION MAPPING with GMRF -->
+<!-- 
+rostopic pub -r 10 /PID/Sensor_reading olfactionsgs/gas_sensor '{header: {frame_id: "robot_1/base_link"},technology: 51 ,manufacturer: 50 ,mpn: 70 ,raw: 6.0 ,raw_units: 3 ,raw_air: 10.0 ,calib_A: 0.0 ,calib_B: 0.0}'
+-->
+<launch>
+    <arg name="launch_prefix" default="" />
+    
+	<node pkg="gmrf_gas_mapping_dynamic" type="gmrf_gas_mapping_dynamic_node" name="gmrf_dynamic_node" output="screen" launch-prefix="$(arg launch_prefix)">
+		<param name="frame_id" value="/robot_1/map" />                      ### frame where the map is published
+		<param name="occupancy_map_topic" value="/robot_1/map" />
+		<param name="sensor_topic" value="/PID/Sensor_reading" />   ### (read) topic for gas sensor/enose		
+		<param name="exec_freq" value="0.5" />                      ### (Hz) frequency to update and publish the maps		
+		<!--param name="cell_size" value="0.21" /-->                     ### (m)
+		<param name="cell_size" value="0.5" />                     ### (m)
+		
+		#GMRF params
+		<param name="GMRF_lambdaPrior" value="0.5" />               ### The information (Lambda) of prior factors
+		<param name="GMRF_lambdaObs" value="10.0" />                ### The initial information (Lambda) of each observation (this information may decrease with time)
+		<param name="GMRF_lambdaObsLoss" value="0.0" />             ### The loss of information (Lambda) of the observations with each iteration (see exec_freq)
+		
+		### Visualization
+		<param name="colormap" value="jet" />                       ### jet, hot, cool, spring, summer, autumn, winter, bone, copper, red, green
+		<param name="max_pclpoints_cell" value="20" />              ### Max number of points to plot per cell (when concentration is max)
+		<param name="min_sensor_val" value="0" />                   ### For normalization
+		<param name="max_sensor_val" value="6" />
+	</node>
+
+</launch>
