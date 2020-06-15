@@ -428,9 +428,12 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
         cout <<"[NGMRF] ("<< left_bound_x <<","<<right_bound_x<<"):("<<left_bound_y <<","<<right_bound_y<<")"<<endl;
         int old_j = 0;
         cell_interconnections.clear();
+        ROS_INFO("[NGMRF] PASS 001.1");
+        cout << "new_N: " << new_N << endl;
         for (size_t j=0; j<new_N; j++)      //For each cell in the gas_map
         {
             //std::cout << "[IDX]: (" << cx << "," << cy << ")" << std::endl;
+            cout << j;
             // Get cell_j indx-limits in Occuppancy gridmap
             cxoj_min = floor(cx*res_coef);
             cxoj_max = cxoj_min + ceil(res_coef-1);
@@ -440,6 +443,26 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
             seed_cxo = cxoj_min + ceil(res_coef/2-1);
             seed_cyo = cyoj_min + ceil(res_coef/2-1);
 
+            if((left_bound_x <= cx) && (cx < right_bound_x) && (left_bound_y <= cy) && (cy < right_bound_y))
+            {
+                //new_g[j] = g[old_j];
+                //cout << "[TRACE] g success" << endl;
+                
+                new_m_map[j] = m_map[old_j];
+                cout << "(";
+                //new_m_map[j].mean = m_map[old_j].mean;
+                //cout << "[TRACE] mean success: [" << old_j <<"]:"<<m_map[old_j].mean <<endl;
+                //new_m_map[j].std = m_map[old_j].std;
+                //cout << "[TRACE] std success" << endl;
+                for(int p=0;p<activeObs[old_j].size();p++)
+                {
+                    cout << p <<","<< activeObs[old_j][p].obsValue;// << "," << activeObs[old_j][p].Lambda << "," << activeObs[old_j][p].time_invariant;
+                }
+                new_activeObs[j] = activeObs[old_j];
+                cout << ")";
+                //cout << "[TRACE] active obs success" << endl;
+                old_j++;
+            }
 
             //If a cell is free then add observation with very low information
             //to force non-visited cells to have a 0.0 mean
@@ -455,7 +478,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 new_activeObs[j].push_back(new_obs);
             }
 
-
+            cout << ",";
             //Factor with the right node: H_ji = - Lamda_prior
             //-------------------------------------------------
             if (cx<(new_m_size_x-1))
@@ -491,6 +514,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 }
             }
 
+            cout << ".";
             //Factor with the upper node: H_ji = - Lamda_prior
             //-------------------------------------------------
             if (cy<(new_m_size_y-1))
@@ -527,6 +551,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 }
             }
 
+            cout << "<";
             //Factors of cell_j: H_jj = Nº factors * Lambda_prior
             //----------------------------------------------------
             std::pair < std::multimap<size_t,size_t>::iterator, std::multimap<size_t,size_t>::iterator > range;
@@ -542,29 +567,17 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
             //std::cout << H_prior << std::endl;
             // Increment j coordinates (row(x), col(y))
             //cout << "[TRACE] trace 3" << endl;
-            if((left_bound_x <= cx) && (cx < right_bound_x) && (left_bound_y <= cy) && (cy < right_bound_y))
-            {
-                //new_g[j] = g[old_j];
-                //cout << "[TRACE] g success" << endl;
-                new_m_map[j].mean = m_map[old_j].mean;
-                //cout << "[TRACE] mean success: [" << old_j <<"]:"<<m_map[old_j].mean <<endl;
-                new_m_map[j].std = m_map[old_j].std;
-                //cout << "[TRACE] std success" << endl;
-                new_activeObs[j] = activeObs[old_j];
-                //cout << "[TRACE] active obs success" << endl;
-                old_j++;
-            }
+            cout << ">";
 
             if (++cx>=new_m_size_x)
             {
                 cx=0;
                 cy++;
             }
-            cout << j << " " << new_N << endl;
 
         } // end for "j"
-
-        ROS_INFO("[NGMRF] PASS 001.1");
+        cout << endl;
+        ROS_INFO("[NGMRF] PASS 001.5");
         //g.resize(new_N);
         //g = new_g;
         m_map.resize(new_N);
@@ -588,7 +601,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
         ROS_INFO("[NGMRF] PASS 002");
         for(size_t j=0;j<N;j++)
         {
-            cout << new_m_map[j].mean << " ";
+            cout << m_map[j].std << " ";
             if((j+1)% m_size_x == 0)
                 cout << endl;
         }
@@ -720,7 +733,7 @@ void  CGMRF_map::updateMapEstimation_GMRF(float lambdaObsLoss)
         ROS_INFO("+++++++++++++++");
         //std::cout << g << std::endl;
         //std::cout << Hsparse << std::endl;
-        
+        /*
         ofstream myfile;
         myfile.open("/home/yaqub/yaqub_ws/matrix.txt");
         for(int i=0;i<N;i++)
@@ -741,7 +754,7 @@ void  CGMRF_map::updateMapEstimation_GMRF(float lambdaObsLoss)
             std:: cout << Hsparse.coeff(i,i) << " ";
         }
         std::cout << std:: endl;
-        
+        */
         // VARIANCE SIGMA = inv(P)*inv(P*H*inv(P)) * P
         //Get triangular supperior P*H*inv(P) = UT' * UT = P * R'*R * inv(P)
         ROS_INFO("[GMRF] variance 000.0");
@@ -831,7 +844,7 @@ void  CGMRF_map::updateMapEstimation_GMRF(float lambdaObsLoss)
     }catch(int e){//std::exception e){
         //ROS_ERROR("[GMRF] Exception Updating the maps: %s ", e.what() );
         if(e == 2)
-            ROS_INFO("ERRORRRRRRRRRRRRR");
+            ROS_ERROR("ERRORRRRRRRRRRRRR g null");
     }
 }
 
@@ -1053,20 +1066,20 @@ void CGMRF_map::get_as_pointClouds(sensor_msgs::PointCloud2 &meanPC, sensor_msgs
                     m_cloud += temp_cloud;
             }
             else if (mean!=0)
-                ROS_WARN("[GMRF] MEAN value out of bounds! %.2f", mean);
+                ROS_WARN("[GMRF Pointcloud] MEAN value out of bounds! %.2f", mean);
 
 
             //Generate var pointCloud
             if(std > 0)
             {
                 //STD values are not normalized...Normalize the plot
-                //ROS_INFO("STD: %.2f", std);
                 std = std::min(std,2.0);
                 std = std/2.0;
                 //Load PointCloud template based on current concentration
                 pcl::PointCloud<pcl::PointXYZRGB> temp_cloud;
                 int idx_std = floor((float)NUM_CELL_TEMPLATES * std);
                 idx_std = std::min(idx_std,199);
+                //ROS_INFO("STD: %.2f,%d", std,idx_std);
                 temp_cloud = template_cells[idx_std];
 
                 //Set point-cloud location (cell center)
@@ -1099,7 +1112,7 @@ void CGMRF_map::get_as_pointClouds(sensor_msgs::PointCloud2 &meanPC, sensor_msgs
         pcl_conversions::moveFromPCL(temp_v, varPC);
         //ROS_INFO("[GMRF] Maps-End");
     }catch(std::exception e){
-        ROS_ERROR("[GMRF] Exception publishing as PCL: %s ", e.what() );
+        ROS_ERROR("[GMRF Pointcloud] Exception publishing as PCL: %s ", e.what() );
     }
 }
 
