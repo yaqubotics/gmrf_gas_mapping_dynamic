@@ -423,8 +423,8 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
 
         int left_bound_x = round((m_x_min-new_m_x_min)/m_resolution);
         int right_bound_x = left_bound_x+round((m_x_max-m_x_min)/m_resolution);
-        int left_bound_y = round((m_x_min-new_m_x_min)/m_resolution);
-        int right_bound_y = left_bound_y+round((m_x_max-m_x_min)/m_resolution);
+        int left_bound_y = round((m_y_min-new_m_y_min)/m_resolution);
+        int right_bound_y = left_bound_y+round((m_y_max-m_y_min)/m_resolution);
         cout <<"[NGMRF] ("<< left_bound_x <<","<<right_bound_x<<"):("<<left_bound_y <<","<<right_bound_y<<")"<<endl;
         int old_j = 0;
         cell_interconnections.clear();
@@ -454,9 +454,10 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 //cout << "[TRACE] mean success: [" << old_j <<"]:"<<m_map[old_j].mean <<endl;
                 //new_m_map[j].std = m_map[old_j].std;
                 //cout << "[TRACE] std success" << endl;
+                cout << "[" << activeObs[old_j].size() << "]";
                 for(int p=0;p<activeObs[old_j].size();p++)
                 {
-                    cout << p <<","<< activeObs[old_j][p].obsValue;// << "," << activeObs[old_j][p].Lambda << "," << activeObs[old_j][p].time_invariant;
+                    cout << p <<","<< activeObs[old_j][p].obsValue<<".";// << "," << activeObs[old_j][p].Lambda << "," << activeObs[old_j][p].time_invariant;
                 }
                 new_activeObs[j] = activeObs[old_j];
                 cout << ")";
