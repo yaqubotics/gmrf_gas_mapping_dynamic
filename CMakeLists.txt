@@ -12,16 +12,19 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   olfaction_msgs  
   geometry_msgs
+  gas_map_msgs
   message_generation
   )
 
 ## System dependencies are found with CMake's conventions
 find_package(OpenCV REQUIRED)
 
-#generate_messages(
-#  DEPENDENCIES
-#  nav_msgs
-#)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  nav_msgs
+)
+
 
 ###################################
 ## catkin specific configuration ##
@@ -34,7 +37,7 @@ find_package(OpenCV REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     DEPENDS opencv2 libpcl-all-dev
-    CATKIN_DEPENDS cv_bridge roscpp pcl_ros
+    CATKIN_DEPENDS message_runtime std_msgs nav_msgs cv_bridge roscpp pcl_ros
     LIBRARIES ${PROJECT_NAME}
 )
 
@@ -51,7 +54,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(gmrf_gas_mapping_dynamic_node src/gmrf_node.cpp src/gmrf_map.cpp)
-add_dependencies(gmrf_gas_mapping_dynamic_node ${olfaction_msgs_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(gmrf_gas_mapping_dynamic_node ${olfaction_msgs_EXPORTED_TARGETS} ${gas_map_msgs_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 link_directories(${catkin_LIBRARY_DIRS})

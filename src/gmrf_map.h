@@ -9,6 +9,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+#include "gas_map_msgs/GasGrid.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ public:
     void  updateMapEstimation_GMRF(float lambdaObsLoss);
     //GET mean and std maps
     void get_as_pointClouds(sensor_msgs::PointCloud2 &meanPC, sensor_msgs::PointCloud2 &varPC);
+    void get_as_GasGrid(gas_map_msgs::GasGrid &gas_grid);
     //Stores map as CSV to specified file
     void store_as_CSV(std::string output_csv_file);
     void updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_map, float cell_size, float m_lambdaPrior, std::string m_colormap, int max_points_cell);

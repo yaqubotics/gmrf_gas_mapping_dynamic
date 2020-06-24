@@ -47,12 +47,12 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <tf/transform_listener.h>
-
+//#include "msg/GasGrid.h"
 #include "gmrf_map.h"
 
 //Services
 #include "olfaction_msgs/suggestNextObservationLocation.h"
-
+#include "gas_map_msgs/GasGrid.h"
 bool receiving_new_map = false;
 bool updating_map = false;
 
@@ -102,7 +102,7 @@ protected:
 
     //Subscriptions & Publishers
     ros::Subscriber sub_sensor, occupancyMap_sub;
-    ros::Publisher mean_advertise, var_advertise;
+    ros::Publisher mean_advertise, var_advertise, gas_grid_advertise;
 
     //Callbacks
     void sensorCallback(const olfaction_msgs::gas_sensorPtr msg);

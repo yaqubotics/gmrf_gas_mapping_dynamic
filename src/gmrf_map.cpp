@@ -429,11 +429,11 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
         int old_j = 0;
         cell_interconnections.clear();
         ROS_INFO("[NGMRF] PASS 001.1");
-        cout << "new_N: " << new_N << endl;
+        //cout << "new_N: " << new_N << endl;
         for (size_t j=0; j<new_N; j++)      //For each cell in the gas_map
         {
             //std::cout << "[IDX]: (" << cx << "," << cy << ")" << std::endl;
-            cout << j;
+            //cout << j;
             // Get cell_j indx-limits in Occuppancy gridmap
             cxoj_min = floor(cx*res_coef);
             cxoj_max = cxoj_min + ceil(res_coef-1);
@@ -449,18 +449,18 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 //cout << "[TRACE] g success" << endl;
                 
                 new_m_map[j] = m_map[old_j];
-                cout << "(";
+                //cout << "(";
                 //new_m_map[j].mean = m_map[old_j].mean;
                 //cout << "[TRACE] mean success: [" << old_j <<"]:"<<m_map[old_j].mean <<endl;
                 //new_m_map[j].std = m_map[old_j].std;
                 //cout << "[TRACE] std success" << endl;
-                cout << "[" << activeObs[old_j].size() << "]";
-                for(int p=0;p<activeObs[old_j].size();p++)
-                {
-                    cout << p <<","<< activeObs[old_j][p].obsValue<<".";// << "," << activeObs[old_j][p].Lambda << "," << activeObs[old_j][p].time_invariant;
-                }
+                //cout << "[" << activeObs[old_j].size() << "]";
+                //for(int p=0;p<activeObs[old_j].size();p++)
+                //{
+                //    cout << p <<","<< activeObs[old_j][p].obsValue<<".";// << "," << activeObs[old_j][p].Lambda << "," << activeObs[old_j][p].time_invariant;
+                //}
                 new_activeObs[j] = activeObs[old_j];
-                cout << ")";
+                //cout << ")";
                 //cout << "[TRACE] active obs success" << endl;
                 old_j++;
             }
@@ -479,7 +479,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 new_activeObs[j].push_back(new_obs);
             }
 
-            cout << ",";
+            //cout << ",";
             //Factor with the right node: H_ji = - Lamda_prior
             //-------------------------------------------------
             if (cx<(new_m_size_x-1))
@@ -515,7 +515,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 }
             }
 
-            cout << ".";
+            //cout << ".";
             //Factor with the upper node: H_ji = - Lamda_prior
             //-------------------------------------------------
             if (cy<(new_m_size_y-1))
@@ -552,7 +552,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
                 }
             }
 
-            cout << "<";
+            //cout << "<";
             //Factors of cell_j: H_jj = Nº factors * Lambda_prior
             //----------------------------------------------------
             std::pair < std::multimap<size_t,size_t>::iterator, std::multimap<size_t,size_t>::iterator > range;
@@ -568,7 +568,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
             //std::cout << H_prior << std::endl;
             // Increment j coordinates (row(x), col(y))
             //cout << "[TRACE] trace 3" << endl;
-            cout << ">";
+            //cout << ">";
 
             if (++cx>=new_m_size_x)
             {
@@ -577,7 +577,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
             }
 
         } // end for "j"
-        cout << endl;
+        //cout << endl;
         ROS_INFO("[NGMRF] PASS 001.5");
         //g.resize(new_N);
         //g = new_g;
@@ -600,12 +600,14 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
         nFactors = new_nFactors;
         nObsFactors = new_nObsFactors;
         ROS_INFO("[NGMRF] PASS 002");
+        
         for(size_t j=0;j<N;j++)
         {
             cout << m_map[j].std << " ";
             if((j+1)% m_size_x == 0)
                 cout << endl;
         }
+        
         //DEBUG - Save cell interconnections to file
         /*
         std::ofstream myfile;
@@ -1021,6 +1023,24 @@ void CGMRF_map::init_pcl_templates(std::string colormap, int max_points_cell)
     }
 }
 
+void CGMRF_map:: get_as_GasGrid(gas_map_msgs::GasGrid &gas_grid)
+{
+    gas_grid.mean.clear();
+    gas_grid.var.clear();
+    for (unsigned int cell_idx=0; cell_idx<N; cell_idx++)
+    {
+        gas_grid.mean.push_back(m_map[cell_idx].mean);
+        gas_grid.var.push_back(m_map[cell_idx].std);
+    }
+    gas_grid.m_x_min = m_x_min;
+    gas_grid.m_x_max = m_x_max;
+    gas_grid.m_y_min = m_y_min;
+    gas_grid.m_y_max = m_y_max;
+    gas_grid.m_resolution = m_resolution;
+    gas_grid.m_size_x = m_size_x;
+    gas_grid.m_size_y = m_size_x;
+    gas_grid.N = N;
+}
 
 
 void CGMRF_map::get_as_pointClouds(sensor_msgs::PointCloud2 &meanPC, sensor_msgs::PointCloud2 &varPC)

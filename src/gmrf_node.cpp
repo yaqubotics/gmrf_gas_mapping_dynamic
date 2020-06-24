@@ -64,6 +64,7 @@ Cgmrf::Cgmrf()
     //----------------------------------
     mean_advertise = param_n.advertise<sensor_msgs::PointCloud2>("mean_map", 20);
     var_advertise = param_n.advertise<sensor_msgs::PointCloud2>("var_map", 20);
+    gas_grid_advertise = param_n.advertise<gas_map_msgs::GasGrid>("gas_grid_map", 20);
     //----------------------------------
     // Services
     //----------------------------------
@@ -193,9 +194,15 @@ void Cgmrf::publishMaps()
     meanPC.header.frame_id = frame_id.c_str();
     varPC.header.frame_id = frame_id.c_str();
 
-    //ROS_INFO("[GMRF] Publishing maps!");
     mean_advertise.publish(meanPC);
     var_advertise.publish(varPC);
+    //ROS_INFO("[GMRF] Publishing maps!");
+
+    gas_map_msgs::GasGrid gas_grid;
+    my_map->get_as_GasGrid(gas_grid);
+    gas_grid.header.frame_id = frame_id.c_str();
+
+    gas_grid_advertise.publish(gas_grid);
 
     //STORE AS CSV FILE
     if (output_csv_file != "")
@@ -227,10 +234,19 @@ int main(int argc, char **argv)
             updating_map = true;
             ROS_INFO("[GMRF] PASS 001 (UPDATING MAP!!!)");
 			// Update and Publish maps
+            ros::Time update_time_begin = ros::Time::now();
             my_gmrf_map.my_map->updateMapEstimation_GMRF(my_gmrf_map.GMRF_lambdaObsLoss);
-
+            ros::Time update_time_end = ros::Time::now();
+            ros::Duration update_time_duration = update_time_end - update_time_begin;
+            ROS_INFO("Update spent time: %lf s",update_time_duration.toSec());\
+            
             ROS_INFO("[GMRF] PASS 002");
+            ros::Time publish_time_begin = ros::Time::now();
             my_gmrf_map.publishMaps();
+            ros::Time publish_time_end = ros::Time::now();
+            ros::Duration publish_time_duration = publish_time_end - publish_time_begin;
+            ROS_INFO("Publish spent time: %lf s",publish_time_duration.toSec());
+
 			updating_map = false;
             ROS_INFO("[GMRF] PASS 001 (UPDATING MAP DONE)");
 
