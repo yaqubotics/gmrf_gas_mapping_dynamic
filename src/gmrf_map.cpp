@@ -600,7 +600,7 @@ void CGMRF_map::updateNewMapEstimation_GMRF(const nav_msgs::OccupancyGrid &oc_ma
         nFactors = new_nFactors;
         nObsFactors = new_nObsFactors;
         ROS_INFO("[NGMRF] PASS 002");
-        
+        cout << "m_size: " << m_size_x << m_size_y <<endl;
         for(size_t j=0;j<N;j++)
         {
             cout << m_map[j].std << " ";
@@ -1038,7 +1038,7 @@ void CGMRF_map:: get_as_GasGrid(gas_map_msgs::GasGrid &gas_grid)
     gas_grid.m_y_max = m_y_max;
     gas_grid.m_resolution = m_resolution;
     gas_grid.m_size_x = m_size_x;
-    gas_grid.m_size_y = m_size_x;
+    gas_grid.m_size_y = m_size_y;
     gas_grid.N = N;
 }
 
