@@ -1,0 +1,13 @@
+<!-- GAS DISTRIBUTION MAPPING with GMRF -->
+<!-- 
+rostopic pub -r 10 /PID/Sensor_reading olfaction_msgs/gas_sensor '{header: {frame_id: "robot_1/base_link"},technology: 51 ,manufacturer: 50 ,mpn: 70 ,raw: 6.0 ,raw_units: 3 ,raw_air: 10.0 ,calib_A: 0.0 ,calib_B: 0.0}'
+-->
+<launch>
+    <arg name="use_slam" default="true" />
+    
+  <node pkg="gmrf_gas_mapping_dynamic" type="gmrf_subscriber_example_node" name="gmrf_subscriber_example" output="screen">
+    
+    <param name="use_slam" value="$(arg use_slam)" />     
+  </node>
+
+</launch>
